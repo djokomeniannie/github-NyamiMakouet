@@ -13,13 +13,12 @@ public class Employe implements Serializable {
     private int id;
     private String nom;
     private Date dateEmbauche;
-    // private Date dateDepart;
     private String numAssurance;
     private String poste;
     private float tauxHoraireBase;
     private float tauxHeureSupplementaire;
     private List<Activite> historique;
-    private List<Projet> projets; // Liste des projets auxquels l'employé est assigné
+    private List<Projet> projets;
 
     public Employe(int id, String nom, Date dateEmbauche, String numAssurance, String poste, float tauxHoraireBase,
             float tauxHeureSupplementaire) {
@@ -31,16 +30,16 @@ public class Employe implements Serializable {
         this.tauxHoraireBase = tauxHoraireBase;
         this.tauxHeureSupplementaire = tauxHeureSupplementaire;
         this.historique = new ArrayList<>();
-        this.projets = new ArrayList<>(); // Initialiser la liste des projets
+        this.projets = new ArrayList<>();
     }
 
     public void debuterActivite(Projet projet, Scanner scanner) {
         if (!projets.contains(projet)) {
-            System.out.println("Vous n'êtes pas affecté à ce projet.");
+            System.out.println("Vous n'etes pas affecte a ce projet.");
             return;
         }
 
-        System.out.println("Sélectionnez la discipline:");
+        System.out.println("Selectionnez la discipline:");
         List<Discipline> disciplines = projet.obtenirDisciplines();
         for (int i = 0; i < disciplines.size(); i++) {
             System.out.println((i + 1) + ". " + disciplines.get(i).getNom());
@@ -52,32 +51,32 @@ public class Employe implements Serializable {
         }
         Discipline disciplineSelectionnee = disciplines.get(choixDiscipline);
 
-        System.out.println("Confirmez-vous le début de l'activité? (oui/non)");
+        System.out.println("Confirmez-vous le debut de l'activite? (oui/non)");
         String confirmation = scanner.nextLine();
         if (!confirmation.equalsIgnoreCase("oui")) {
-            System.out.println("Début de l'activité annulé.");
+            System.out.println("Debut de l'activite annule.");
             return;
         }
 
         Date dateDebut = new Date();
         Activite activite = new Activite(this.id, projet.getId(), disciplineSelectionnee.getNom(), dateDebut);
         historique.add(activite);
-        System.out.println("Activité débutée pour le projet " + projet.getNom() + " dans la discipline "
-                + disciplineSelectionnee.getNom() + " à " + dateDebut);
+        System.out.println("Activite debutee pour le projet " + projet.getNom() + " dans la discipline "
+                + disciplineSelectionnee.getNom() + " a " + dateDebut);
     }
 
     public void terminerActivite(Projet projet, Scanner scanner) {
         if (!projets.contains(projet)) {
-            System.out.println("Vous n'êtes pas affecté à ce projet.");
+            System.out.println("Vous n'etes pas affecte a ce projet.");
             return;
         }
 
-        System.out.println("Signalez l'arrêt de l'activité pour le projet " + projet.getNom());
+        System.out.println("Signalez l'arret de l'activite pour le projet " + projet.getNom());
 
-        System.out.println("Confirmez-vous la fin de l'activité? (oui/non)");
+        System.out.println("Confirmez-vous la fin de l'activite? (oui/non)");
         String confirmation = scanner.nextLine();
         if (!confirmation.equalsIgnoreCase("oui")) {
-            System.out.println("Fin de l'activité annulée.");
+            System.out.println("Fin de l'activite annulee.");
             return;
         }
 
@@ -89,7 +88,7 @@ public class Employe implements Serializable {
 
                 long duree = dateFin.getTime() - activite.getDateDebut().getTime();
                 long dureeEnMinutes = duree / (1000 * 60);
-                System.out.println("Activite terminée pour le projet " + projet.getNom() + " à " + dateFin);
+                System.out.println("Activite terminee pour le projet " + projet.getNom() + " a " + dateFin);
                 System.out.println("Temps total de l'activite: " + dureeEnMinutes + " minutes");
                 activiteTrouvee = true;
                 break;
@@ -132,7 +131,7 @@ public class Employe implements Serializable {
     }
 
     public void consulterTalonPaiePourPeriode(Scanner scanner) {
-        System.out.println("Choisissez une période de paie:");
+        System.out.println("Choisissez une periode de paie:");
         Calendar cal = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         List<Date> startDates = new ArrayList<>();
@@ -154,7 +153,7 @@ public class Employe implements Serializable {
 
         int choix = Integer.parseInt(scanner.nextLine()) - 1;
         if (choix < 0 || choix >= 26) {
-            System.out.println("Période invalide.");
+            System.out.println("Periode invalide.");
             return;
         }
 
@@ -186,11 +185,11 @@ public class Employe implements Serializable {
         float paieNette = paieTotale * 0.6f;
 
         System.out.println(
-                "Talon de paie pour la période " + sdf.format(periodeDebut) + " - " + sdf.format(periodeFin) + ":");
-        System.out.println("Heures régulières travaillées: " + heuresNormales + " heures");
-        System.out.println("Heures supplémentaires travaillées: " + heuresSupplementaires + " heures");
-        System.out.println("Salaire régulier: " + paieNormale + " dollars");
-        System.out.println("Salaire des heures supplémentaires: " + paieSupplementaire + " dollars");
+                "Talon de paie pour la periode " + sdf.format(periodeDebut) + " - " + sdf.format(periodeFin) + ":");
+        System.out.println("Heures regulieres travaillees: " + heuresNormales + " heures");
+        System.out.println("Heures supplementaires travaillees: " + heuresSupplementaires + " heures");
+        System.out.println("Salaire regulier: " + paieNormale + " dollars");
+        System.out.println("Salaire des heures supplementaires: " + paieSupplementaire + " dollars");
         System.out.println("Salaire brut: " + paieTotale + " dollars");
         System.out.println("Salaire net: " + paieNette + " dollars");
 
@@ -221,15 +220,6 @@ public class Employe implements Serializable {
         this.dateEmbauche = dateEmbauche;
     }
 
-    /*
-     * public Date getDateDepart() {
-     * return dateDepart;
-     * }
-     * 
-     * public void setDateDepart(Date dateDepart) {
-     * this.dateDepart = dateDepart;
-     * }
-     */
     public String getNumAssurance() {
         return numAssurance;
     }

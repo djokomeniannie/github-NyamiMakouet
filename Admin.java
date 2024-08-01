@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
@@ -59,6 +58,7 @@ public class Admin implements Serializable {
 
     public void ajouterProjet(Projet projet) {
         projets.add(projet);
+        System.out.println("project ajouter avec succes");
     }
 
     public void supprimerProjet(Projet projet) {
@@ -68,7 +68,6 @@ public class Admin implements Serializable {
     public void ajouterEmploye(Employe employe) {
         employes.add(employe);
         System.out.println("Employe ajouter avec succes");
-
     }
 
     public void modifierEmploye(int id, String nouveauNom, int nouvelId) {
@@ -77,7 +76,7 @@ public class Admin implements Serializable {
             employe.setNom(nouveauNom);
             employe.setId(nouvelId);
         } else {
-            System.out.println("Employé non trouvé.");
+            System.out.println("Employe non trouve.");
         }
     }
 
@@ -86,7 +85,7 @@ public class Admin implements Serializable {
     }
 
     public void genererRapportEtatGlobal() {
-        System.out.println("Rapport d'état global:");
+        System.out.println("Rapport d'etat global:");
         for (Projet projet : projets) {
             projet.genererRapportEtat(this);
         }
@@ -94,7 +93,7 @@ public class Admin implements Serializable {
 
     public void genererRapportValeurHeures(Employe employe, Date dateDebut) {
         System.out.println(
-                "Rapport des valeurs des heures travaillées pour " + employe.getNom() + " depuis " + dateDebut + ":");
+                "Rapport des valeurs des heures travaillees pour " + employe.getNom() + " depuis " + dateDebut + ":");
         long totalMinutes = 0;
 
         for (Activite activite : employe.getHistorique()) {
@@ -107,9 +106,9 @@ public class Admin implements Serializable {
                     totalMinutes += dureeEnMinutes;
                     System.out.println("Projet: " + activite.getProjetId() +
                             ", Discipline: " + activite.getDiscipline() +
-                            ", Début: " + debut +
+                            ", Debut: " + debut +
                             ", Fin: " + fin +
-                            ", Durée: " + dureeEnMinutes + " minutes");
+                            ", Duree: " + dureeEnMinutes + " minutes");
                 }
             }
         }
@@ -117,14 +116,14 @@ public class Admin implements Serializable {
         long heures = totalMinutes / 60;
         long minutes = totalMinutes % 60;
         float valeur = (totalMinutes / 60.0f) * employe.getTauxHoraireBase();
-        System.out.println("Temps total travaillé: " + heures + " heures et " + minutes);
+        System.out.println("Temps total travaille: " + heures + " heures et " + minutes);
         System.out.println("Valeur totale des heures: " + valeur + " USD");
     }
 
     public void genererRapportTotauxSalairesDernieres26Periodes() {
-        System.out.println("Rapport des salaires pour les 26 dernières périodes de paie:");
+        System.out.println("Rapport des salaires pour les 26 dernieres periodes de paie:");
         for (Employe employe : employes) {
-            System.out.println("Employé: " + employe.getNom());
+            System.out.println("Employe: " + employe.getNom());
             employe.consulterTalonPaiePourPeriode(new Scanner(System.in));
         }
     }
@@ -165,7 +164,11 @@ public class Admin implements Serializable {
 
     // Sauvegarde des données en JSON
     public void sauvegarderDonnees(String fichier) throws IOException {
-        Gson gson = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(Date.class, new DateTypeAdapter())
+        Gson gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .registerTypeAdapter(Date.class, new DateTypeAdapter())
+                .registerTypeAdapter(Projet.class, new ProjetAdapter())
+                .registerTypeAdapter(Activite.class, new ActiviteAdapter())
                 .create();
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(fichier), "UTF-8")) {
             gson.toJson(this, writer);
@@ -174,16 +177,31 @@ public class Admin implements Serializable {
 
     // Chargement des données depuis un fichier JSON avec validation
     public static Admin chargerDonnees(String fichier) {
-        Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new DateTypeAdapter()).create();
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Date.class, new DateTypeAdapter())
+                .registerTypeAdapter(Projet.class, new ProjetAdapter())
+                .registerTypeAdapter(Activite.class, new ActiviteAdapter())
+                .create();
         try (Reader reader = new InputStreamReader(new FileInputStream(fichier), "UTF-8")) {
             Admin admin = gson.fromJson(reader, Admin.class);
             if (admin == null) {
                 throw new IOException("Données JSON nulles");
             }
             admin.initialiserListes(); // Assurez-vous que les listes sont initialisées
+
+            // Réassociation des activités avec les projets et les employés
+            for (Employe employe : admin.getEmployes()) {
+                for (Activite activite : employe.getHistorique()) {
+                    Projet projet = admin.getProjetById(activite.getProjetId());
+                    if (projet != null && !projet.getEmployes().contains(employe)) {
+                        projet.ajouterEmploye(employe);
+                    }
+                }
+            }
+
             return admin;
         } catch (IOException e) {
-            System.out.println("Erreur lors du chargement des données: " + e.getMessage());
+            System.out.println("Erreur lors du chargement des donnees: " + e.getMessage());
             return new Admin("admin", "admin");
         }
     }

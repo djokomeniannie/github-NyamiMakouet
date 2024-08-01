@@ -1,8 +1,6 @@
 package NyamiMakouet;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Scanner;
 
@@ -17,14 +15,14 @@ public class Main {
             if (admin == null) {
                 System.out.println("Donnees non chargees, creation d'un nouvel admin.");
                 admin = new Admin("admin", "admin");
-                initialiserDonnees(admin); // Initialisation des données
+                sauvegarderDonnees(admin); // Sauvegarder les données initialisées
             } else {
                 System.out.println("Donnees chargees avec succes.");
             }
         } catch (Exception e) {
             System.out.println("Erreur inattendue lors du chargement des donnees: " + e.getMessage());
             admin = new Admin("admin", "admin");
-            initialiserDonnees(admin); // Initialisation des données
+            sauvegarderDonnees(admin); // Sauvegarder les données initialisées
         }
 
         // Menu interactif
@@ -36,12 +34,7 @@ public class Main {
 
             if (userType.equals("exit")) {
                 // Sauvegarde des données avant de quitter
-                try {
-                    admin.sauvegarderDonnees("time_log_data.json");
-                    System.out.println("Donnees sauvegardees avec succes.");
-                } catch (IOException e) {
-                    System.out.println("Erreur lors de la sauvegarde des donnees: " + e.getMessage());
-                }
+                sauvegarderDonnees(admin);
                 break;
             }
 
@@ -57,82 +50,6 @@ public class Main {
         scanner.close();
     }
 
-    private static void initialiserDonnees(Admin admin) {
-        // Création des disciplines
-        Discipline design = new Discipline("Design");
-        Discipline developpement = new Discipline("Developpement");
-        Discipline test = new Discipline("Test");
-        Discipline documentation = new Discipline("Documentation");
-        Discipline deployment = new Discipline("Deploiement");
-
-        // Création des projets
-        Projet projet1 = new Projet(1, "Projet Alpha", new Date(), new Date(), 100);
-        projet1.ajouterDiscipline(design);
-        projet1.ajouterDiscipline(developpement);
-        projet1.ajouterDiscipline(test);
-        projet1.ajouterDiscipline(documentation);
-        projet1.ajouterDiscipline(deployment);
-        admin.ajouterProjet(projet1);
-
-        Projet projet2 = new Projet(2, "Projet Beta", new Date(), new Date(), 150);
-        projet2.ajouterDiscipline(design);
-        projet2.ajouterDiscipline(developpement);
-        projet2.ajouterDiscipline(test);
-        projet2.ajouterDiscipline(documentation);
-        projet2.ajouterDiscipline(deployment);
-        admin.ajouterProjet(projet2);
-
-        Projet projet3 = new Projet(3, "Projet Gamma", new Date(), new Date(), 200);
-        projet3.ajouterDiscipline(design);
-        projet3.ajouterDiscipline(developpement);
-        projet3.ajouterDiscipline(test);
-        projet3.ajouterDiscipline(documentation);
-        projet3.ajouterDiscipline(deployment);
-        admin.ajouterProjet(projet3);
-
-        // Création des employés
-        Employe employe1 = new Employe(1, "Employe1", new Date(), "123", "Developpeur", 30, 45);
-        Employe employe2 = new Employe(2, "Employe2", new Date(), "124", "Designer", 25, 40);
-        Employe employe3 = new Employe(3, "Employe3", new Date(), "125", "Testeur", 20, 35);
-
-        admin.ajouterEmploye(employe1);
-        admin.ajouterEmploye(employe2);
-        admin.ajouterEmploye(employe3);
-
-        // Assignation des employés aux projets
-        admin.assignerEmploye(employe1, projet1);
-        admin.assignerEmploye(employe2, projet1);
-        admin.assignerEmploye(employe2, projet2);
-        admin.assignerEmploye(employe3, projet1);
-        admin.assignerEmploye(employe3, projet2);
-        admin.assignerEmploye(employe3, projet3);
-
-        // Enregistrement des heures de travail pour chaque employé
-        ajouterHeuresTravail(employe1, projet1, 11);
-        ajouterHeuresTravail(employe2, projet1, 21);
-        ajouterHeuresTravail(employe2, projet2, 22);
-        ajouterHeuresTravail(employe3, projet1, 31);
-        ajouterHeuresTravail(employe3, projet2, 32);
-        ajouterHeuresTravail(employe3, projet3, 33);
-    }
-
-    private static void ajouterHeuresTravail(Employe employe, Projet projet, int heuresParDiscipline) {
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_YEAR, -14); // Début des deux dernières semaines
-
-        for (int i = 0; i < 14; i++) {
-            for (Discipline discipline : projet.getDisciplines()) {
-                Date debut = cal.getTime();
-                cal.add(Calendar.HOUR_OF_DAY, heuresParDiscipline);
-                Date fin = cal.getTime();
-                employe.getHistorique()
-                        .add(new Activite(employe.getId(), projet.getId(), discipline.getNom(), debut, fin));
-                cal.add(Calendar.HOUR_OF_DAY, -heuresParDiscipline); // Revenir à l'heure de début
-            }
-            cal.add(Calendar.DAY_OF_YEAR, 1); // Passer au jour suivant
-        }
-    }
-
     private static void handleAdminActions(Scanner scanner, Admin admin) {
         while (true) {
             System.out.println("\nMenu Admin:");
@@ -140,9 +57,9 @@ public class Main {
             System.out.println("2. Afficher le rapport d'etat global");
             System.out.println("3. Ajouter un projet");
             System.out.println("4. Supprimer un projet");
-            System.out.println("5. Genrrer un talon de paie pour un employe");
+            System.out.println("5. Generer un talon de paie pour un employe");
             System.out.println("6. Modifier un employe");
-            System.out.println("7. Assigner un employe à un projet");
+            System.out.println("7. Assigner un employe a un projet");
             System.out.println("8. Ajouter un employe");
             System.out.println("9. Afficher tous les employes");
             System.out.println("10. Afficher tous les projets");
@@ -181,6 +98,7 @@ public class Main {
                     projetAjout.ajouterDiscipline(new Discipline("Deploiement"));
 
                     admin.ajouterProjet(projetAjout);
+                    sauvegarderDonnees(admin);
                     break;
                 case 4:
                     System.out.println("Entrez l'ID du projet a supprimer:");
@@ -188,6 +106,7 @@ public class Main {
                     Projet projetSuppr = admin.getProjetById(projetIdSuppr);
                     if (projetSuppr != null) {
                         admin.supprimerProjet(projetSuppr);
+                        sauvegarderDonnees(admin);
                     } else {
                         System.out.println("Projet non trouve.");
                     }
@@ -210,6 +129,7 @@ public class Main {
                     System.out.println("Entrez le nouvel ID de l'employe:");
                     int nouvelId = Integer.parseInt(scanner.nextLine());
                     admin.modifierEmploye(employeIdModif, nouveauNom, nouvelId);
+                    sauvegarderDonnees(admin);
                     break;
                 case 7:
                     System.out.println("Entrez l'ID de l'employe:");
@@ -228,13 +148,14 @@ public class Main {
                     }
                     admin.assignerEmploye(employeAssign, projetAssign);
                     employeAssign.ajouterProjet(projetAssign); // Ajout du projet à l'employé
+                    sauvegarderDonnees(admin);
                     break;
                 case 8:
                     System.out.println("Entrez le nom de l'employe:");
                     String nomEmploye = scanner.nextLine();
                     System.out.println("Entrez la date d'embauche (yyyy-MM-dd):");
                     Date dateEmbauche = DateTypeAdapter.parseDate(scanner.nextLine());
-                    System.out.println("Entrez le numéro d'assurance:");
+                    System.out.println("Entrez le numero d'assurance:");
                     String numAssurance = scanner.nextLine();
                     System.out.println("Entrez le poste:");
                     String poste = scanner.nextLine();
@@ -245,6 +166,7 @@ public class Main {
                     Employe employeAjoute = new Employe(admin.getEmployes().size() + 1, nomEmploye, dateEmbauche,
                             numAssurance, poste, tauxHoraireBase, tauxHeureSupplementaire);
                     admin.ajouterEmploye(employeAjoute);
+                    sauvegarderDonnees(admin);
                     break;
                 case 9:
                     System.out.println("Liste des employes:");
@@ -259,12 +181,7 @@ public class Main {
                     }
                     break;
                 case 11:
-                    try {
-                        admin.sauvegarderDonnees("time_log_data.json");
-                        System.out.println("Donnees sauvegardées avec succes.");
-                    } catch (IOException e) {
-                        System.out.println("Erreur lors de la sauvegarde des donnees: " + e.getMessage());
-                    }
+                    sauvegarderDonnees(admin);
                     System.exit(0);
                     break;
                 case 12:
@@ -276,6 +193,7 @@ public class Main {
                     System.out.println("Entrez la nouvelle valeur de NPE:");
                     int nouveauNPE = Integer.parseInt(scanner.nextLine());
                     admin.setNPE(nouveauNPE);
+                    sauvegarderDonnees(admin);
                     break;
                 default:
                     System.out.println("Option invalide, veuillez reessayer.");
@@ -313,6 +231,7 @@ public class Main {
                             .orElse(null);
                     if (projet != null) {
                         employe.debuterActivite(projet, scanner);
+                        sauvegarderDonnees(admin);
                     } else {
                         System.out.println("Projet non trouve ou vous n'etes pas assigne a ce projet.");
                     }
@@ -326,6 +245,7 @@ public class Main {
                             .orElse(null);
                     if (projet != null) {
                         employe.terminerActivite(projet, scanner);
+                        sauvegarderDonnees(admin);
                     } else {
                         System.out.println("Projet non trouve ou vous n'etes pas assigne à ce projet.");
                     }
@@ -348,7 +268,7 @@ public class Main {
         try {
             admin.sauvegarderDonnees("time_log_data.json");
         } catch (IOException e) {
-            System.out.println("Erreur lors de la sauvegarde des données: " + e.getMessage());
+            System.out.println("Erreur lors de la sauvegarde des donnees: " + e.getMessage());
         }
     }
 }
